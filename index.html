@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Resource Pack Pro - Полная версия</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Minecraft', 'Segoe UI', sans-serif;
+        }
+        
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/minecraft.css/0.0.1/minecraft-font.woff') format('woff');
+        }
+
+        :root {
+            --bg-dark: #1a1f2b;
+            --bg-panel: #252b38;
+            --border: #3d4455;
+            --accent: #ffaa00;
+            --accent-hover: #ffc34d;
+            --success: #4caf50;
+            --danger: #f44336;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0b0e14 0%, #1a1f2b 100%);
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.85);
+            border: 4px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        h1 {
+            font-size: 48px;
+            text-align: center;
+            margin: 0 0 30px 0;
+            background: linear-gradient(135deg, #fff 20%, #ffaa00 40%, #ffdd00 60%, #fff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 4px 4px 0 #000;
+            font-family: 'Minecraft', monospace;
+        }
+
+        h2 {
+            color: #fff;
+            text-shadow: 3px 3px 0 #000;
+            font-family: 'Minecraft', monospace;
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 20px;
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            border: 3px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        /* Левая панель - текстуры */
+        .upload-area {
+            background: #2f3646;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: #3a4155;
+            color: #fff;
+        }
+
+        .textures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #1e232f;
+            border-radius: 10px;
+        }
+
+        .texture-item {
+            background: #2f3646;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .texture-item:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .texture-item.selected {
+            border-color: var(--success);
+            background: #2a4a2a;
+            box-shadow: 0 0 15px var(--success);
+        }
+
+        .texture-item img {
+            width: 64px;
+            height: 64px;
+            image-rendering: pixelated;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .texture-name {
+            color: #ddd;
+            font-size: 10px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .delete-texture {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        /* Центральная панель - редактор */
+        .version-selector {
+            background: #2f3646;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .version-selector label {
+            color: #fff;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .version-selector select, .version-selector input {
+            width: 100%;
+            padding: 12px;
+            background: #1e232f;
+            border: 2px solid var(--border);
+            color: #fff;
+            font-family: 'Minecraft', monospace;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .version-selector select {
+            margin-bottom: 15px;
+        }
+
+        .path-builder {
+            background: #2f3646;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .category-selector {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: #1e232f;
+            border: 2px solid var(--border);
+            color: #aaa;
+            padding: 10px 15px;
+            font-family: 'Minecraft', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            flex: 1;
+            transition: 0.2s;
+        }
+
+        .category-btn.active {
+            background: var(--accent);
+            border-color: #ffdd00;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .path-input {
+            background: #1e232f;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .path-input label {
+            color: #aaa;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .path-input input {
+            width: 100%;
+            background: #2f3646;
+            border: 2px solid var(--border);
+            color: #fff;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+        .path-preview {
+            background: #000;
+            border-radius: 8px;
+            padding: 15px;
+            color: #ffaa00;
+            font-family: monospace;
+            word-break: break-all;
+            border: 2px solid var(--border);
+        }
+
+        .common-paths {
+            margin-top: 20px;
+        }
+
+        .common-paths h3 {
+            color: #fff;
+            font-size: 16px;
+            margin: 0 0 10px 0;
+        }
+
+        .path-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .path-tag {
+            background: #1e232f;
+            border: 2px solid var(--border);
+            color: #aaa;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .path-tag:hover {
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        /* Правая панель - назначения */
+        .assignments-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .assignment-card {
+            background: #2f3646;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .assignment-card img {
+            width: 48px;
+            height: 48px;
+            image-rendering: pixelated;
+            border: 2px solid var(--border);
+            border-radius: 5px;
+        }
+
+        .assignment-info {
+            flex: 1;
+        }
+
+        .assignment-info .texture-name {
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .assignment-info .texture-path {
+            color: #ffaa00;
+            font-size: 11px;
+            font-family: monospace;
+            background: #1e232f;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .btn {
+            background: #2f3646;
+            border: 3px solid var(--border);
+            color: #fff;
+            padding: 15px 20px;
+            font-family: 'Minecraft', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: 0.2s;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .btn.primary {
+            background: var(--success);
+            border-color: #2e7d32;
+        }
+
+        .btn.primary:hover {
+            background: #66bb6a;
+            transform: translateY(-2px);
+        }
+
+        .btn.warning {
+            background: var(--accent);
+            border-color: #f57c00;
+            color: #000;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #323232;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            border-left: 5px solid var(--success);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+            display: none;
+            z-index: 9999;
+            font-family: 'Minecraft', monospace;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            color: #aaa;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .pack-mcmeta {
+            margin-top: 20px;
+            background: #1e232f;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .pack-mcmeta textarea {
+            width: 100%;
+            background: #2f3646;
+            border: 2px solid var(--border);
+            color: #fff;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ MINECRAFT RESOURCE PACK STUDIO PRO ⚡</h1>
+        
+        <div class="main-grid">
+            <!-- Левая панель: текстуры -->
+            <div class="panel">
+                <h2>📁 Текстуры</h2>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" multiple accept="image/png" hidden>
+                    <div style="font-size: 40px; margin-bottom: 10px;">📂</div>
+                    <div>Нажмите или перетащите PNG</div>
+                    <div style="font-size: 12px; margin-top: 10px;">Поддерживаются только PNG</div>
+                </div>
+                <div class="textures-grid" id="texturesGrid"></div>
+                <div class="info-row">
+                    <span>Загружено: <span id="textureCount">0</span></span>
+                    <span>Назначено: <span id="assignedCount">0</span></span>
+                </div>
+            </div>
+
+            <!-- Центральная панель: редактор пути -->
+            <div class="panel">
+                <h2>🔧 Редактор идентификатора</h2>
+                
+                <!-- Выбор версии -->
+                <div class="version-selector">
+                    <label>Версия Minecraft:</label>
+                    <select id="mcVersion">
+                        <option value="15">1.20.5+ (формат 15)</option>
+                        <option value="13">1.20-1.20.4 (формат 13)</option>
+                        <option value="12">1.19.3 (формат 12)</option>
+                        <option value="9">1.18-1.18.2 (формат 9)</option>
+                        <option value="8">1.17-1.17.1 (формат 8)</option>
+                        <option value="7">1.16.2-1.16.5 (формат 7)</option>
+                        <option value="6" selected>1.15-1.16.1 (формат 6)</option>
+                        <option value="5">1.14-1.14.4 (формат 5)</option>
+                        <option value="4">1.13-1.13.2 (формат 4)</option>
+                        <option value="3">1.11-1.12.2 (формат 3)</option>
+                        <option value="2">1.9-1.10.2 (формат 2)</option>
+                        <option value="1">1.6.1-1.8.9 (формат 1)</option>
+                    </select>
+                    
+                    <label>Название ресурспака:</label>
+                    <input type="text" id="packName" value="Мой ресурспак" placeholder="Название">
+                    
+                    <label>Описание:</label>
+                    <input type="text" id="packDesc" value="Создано в Resource Pack Studio" placeholder="Описание">
+                </div>
+
+                <!-- Конструктор пути -->
+                <div class="path-builder">
+                    <div class="category-selector">
+                        <button class="category-btn active" data-category="blocks">Блоки</button>
+                        <button class="category-btn" data-category="items">Предметы</button>
+                        <button class="category-btn" data-category="entities">Сущности</button>
+                        <button class="category-btn" data-category="gui">Интерфейс</button>
+                        <button class="category-btn" data-category="armor">Броня</button>
+                        <button class="category-btn" data-category="custom">Свой путь</button>
+                    </div>
+
+                    <div class="path-input">
+                        <label>Идентификатор (название файла):</label>
+                        <input type="text" id="textureId" placeholder="например: diamond_sword, custom_block, my_texture">
+                    </div>
+
+                    <div class="path-input" id="customPathContainer" style="display: none;">
+                        <label>Полный путь (от textures/):</label>
+                        <input type="text" id="customPath" placeholder="например: block/custom/diamond_sword">
+                    </div>
+
+                    <div class="path-preview" id="pathPreview">
+                        assets/minecraft/textures/block/example.png
+                    </div>
+
+                    <div class="common-paths">
+                        <h3>Быстрый выбор:</h3>
+                        <div class="path-tags" id="quickTags">
+                            <!-- Заполняется скриптом -->
+                        </div>
+                    </div>
+
+                    <button class="btn primary" id="assignCustomBtn" disabled style="margin-top: 20px;">
+                        📌 Назначить текстуре
+                    </button>
+                </div>
+            </div>
+
+            <!-- Правая панель: назначения и экспорт -->
+            <div class="panel">
+                <h2>📋 Назначения</h2>
+                <div class="assignments-list" id="assignmentsList"></div>
+
+                <div class="pack-mcmeta">
+                    <textarea id="packMcmeta" rows="4" readonly></textarea>
+                    <button class="btn" id="copyMcmeta">📋 Копировать pack.mcmeta</button>
+                </div>
+
+                <button class="btn primary" id="exportPack">📦 Скачать ресурспак</button>
+                <button class="btn" id="loadPackBtn">📂 Загрузить ресурспак</button>
+                <input type="file" id="packFile" accept=".zip" hidden>
+                <button class="btn warning" id="clearAll">🗑️ Очистить всё</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Готово!</div>
+
+    <script>
+        // База популярных идентификаторов
+        const QUICK_IDS = {
+            blocks: ['stone', 'dirt', 'grass_block', 'cobblestone', 'oak_planks', 'bedrock', 'sand', 'gravel', 'gold_ore', 'iron_ore', 'coal_ore', 'diamond_ore', 'obsidian'],
+            items: ['diamond_sword', 'iron_sword', 'diamond_pickaxe', 'iron_pickaxe', 'diamond_axe', 'bow', 'arrow', 'apple', 'golden_apple', 'bread'],
+            entities: ['zombie', 'skeleton', 'creeper', 'spider', 'enderman', 'pig', 'cow', 'sheep', 'chicken'],
+            gui: ['inventory', 'crafting_table', 'furnace', 'chest', 'widgets'],
+            armor: ['leather_layer_1', 'iron_layer_1', 'diamond_layer_1', 'chainmail_layer_1']
+        };
+
+        let textures = [];
+        let selectedTextureId = null;
+        let currentCategory = 'blocks';
+        let customPathMode = false;
+
+        // Элементы
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const texturesGrid = document.getElementById('texturesGrid');
+        const pathPreview = document.getElementById('pathPreview');
+        const textureIdInput = document.getElementById('textureId');
+        const customPathInput = document.getElementById('customPath');
+        const customPathContainer = document.getElementById('customPathContainer');
+        const assignBtn = document.getElementById('assignCustomBtn');
+        const packMcmeta = document.getElementById('packMcmeta');
+        const mcVersion = document.getElementById('mcVersion');
+        const packName = document.getElementById('packName');
+        const packDesc = document.getElementById('packDesc');
+
+        // Загрузка текстур
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => e.preventDefault());
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type === 'image/png') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        textures.push({
+                            id: Date.now() + Math.random() + file.name,
+                            name: file.name,
+                            file: file,
+                            dataUrl: e.target.result,
+                            assignedPath: null
+                        });
+                        renderAll();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    showToast('Только PNG файлы!', 'error');
+                }
+            }
+        }
+
+        // Рендер всего
+        function renderAll() {
+            renderTextures();
+            renderAssignments();
+            updatePathPreview();
+            updateAssignButton();
+            updateMcmeta();
+            updateStats();
+        }
+
+        function renderTextures() {
+            texturesGrid.innerHTML = '';
+            
+            textures.forEach(texture => {
+                const div = document.createElement('div');
+                div.className = `texture-item ${texture.id === selectedTextureId ? 'selected' : ''}`;
+                div.innerHTML = `
+                    <img src="${texture.dataUrl}" alt="${texture.name}">
+                    <div class="texture-name">${texture.name}</div>
+                    <span class="delete-texture" data-id="${texture.id}">×</span>
+                `;
+                
+                div.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('delete-texture')) {
+                        selectedTextureId = texture.id;
+                        renderTextures();
+                        updateAssignButton();
+                    }
+                });
+
+                texturesGrid.appendChild(div);
+            });
+
+            // Удаление
+            document.querySelectorAll('.delete-texture').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.id;
+                    textures = textures.filter(t => t.id !== id);
+                    if (selectedTextureId === id) selectedTextureId = null;
+                    renderAll();
+                });
+            });
+        }
+
+        function renderAssignments() {
+            const list = document.getElementById('assignmentsList');
+            const assigned = textures.filter(t => t.assignedPath);
+            
+            list.innerHTML = assigned.map(texture => `
+                <div class="assignment-card">
+                    <img src="${texture.dataUrl}" alt="">
+                    <div class="assignment-info">
+                        <div class="texture-name">${texture.name}</div>
+                        <div class="texture-path">${texture.assignedPath}</div>
+                    </div>
+                    <button class="remove-assignment" data-id="${texture.id}" style="background:var(--danger); color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">✕</button>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.remove-assignment').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const texture = textures.find(t => t.id === id);
+                    if (texture) {
+                        texture.assignedPath = null;
+                        renderAll();
+                    }
+                });
+            });
+        }
+
+        // Категории
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                currentCategory = btn.dataset.category;
+                customPathMode = currentCategory === 'custom';
+                
+                customPathContainer.style.display = customPathMode ? 'block' : 'none';
+                
+                updatePathPreview();
+                renderQuickTags();
+            });
+        });
+
+        // Быстрые теги
+        function renderQuickTags() {
+            const container = document.getElementById('quickTags');
+            if (customPathMode) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            const ids = QUICK_IDS[currentCategory] || [];
+            container.innerHTML = ids.map(id => 
+                `<span class="path-tag" data-id="${id}">${id}</span>`
+            ).join('');
+
+            document.querySelectorAll('.path-tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    textureIdInput.value = tag.dataset.id;
+                    updatePathPreview();
+                });
+            });
+        }
+
+        // Обновление превью пути
+        function updatePathPreview() {
+            let path = '';
+            
+            if (customPathMode) {
+                path = customPathInput.value || 'custom/path';
+            } else {
+                const id = textureIdInput.value || 'example';
+                path = `${currentCategory}/${id}`;
+            }
+            
+            pathPreview.textContent = `assets/minecraft/textures/${path}.png`;
+        }
+
+        // Обновление pack.mcmeta
+        function updateMcmeta() {
+            const version = mcVersion.value;
+            const name = packName.value || 'Resource Pack';
+            const desc = packDesc.value || 'Created in Resource Pack Studio';
+            
+            const mcmeta = {
+                pack: {
+                    pack_format: parseInt(version),
+                    description: desc
+                }
+            };
+            
+            packMcmeta.value = JSON.stringify(mcmeta, null, 2);
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            document.getElementById('textureCount').textContent = textures.length;
+            document.getElementById('assignedCount').textContent = textures.filter(t => t.assignedPath).length;
+        }
+
+        // Обновление кнопки назначения
+        function updateAssignButton() {
+            assignBtn.disabled = !selectedTextureId;
+        }
+
+        // Назначение текстуры
+        assignBtn.addEventListener('click', () => {
+            if (!selectedTextureId) return;
+            
+            const texture = textures.find(t => t.id === selectedTextureId);
+            if (!texture) return;
+            
+            let path = '';
+            if (customPathMode) {
+                path = customPathInput.value;
+                if (!path) {
+                    showToast('Введите путь!', 'error');
+                    return;
+                }
+            } else {
+                const id = textureIdInput.value;
+                if (!id) {
+                    showToast('Введите идентификатор!', 'error');
+                    return;
+                }
+                path = `${currentCategory}/${id}`;
+            }
+            
+            texture.assignedPath = path;
+            selectedTextureId = null;
+            
+            renderAll();
+            showToast(`Текстура назначена на ${path}`);
+        });
+
+        // Экспорт ресурспака
+        document.getElementById('exportPack').addEventListener('click', async () => {
+            const assigned = textures.filter(t => t.assignedPath);
+            
+            if (assigned.length === 0) {
+                showToast('Нет назначенных текстур!', 'error');
+                return;
+            }
+
+            showToast('Создание ресурспака...', 'info');
+
+            const zip = new JSZip();
+            
+            // pack.mcmeta
+            zip.file('pack.mcmeta', packMcmeta.value);
+
+            // Добавляем текстуры
+            for (let texture of assigned) {
+                const path = `assets/minecraft/textures/${texture.assignedPath}.png`;
+                const response = await fetch(texture.dataUrl);
+                const blob = await response.blob();
+                zip.file(path, blob);
+            }
+
+            // Скачивание
+            const content = await zip.generateAsync({ type: 'blob' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `resourcepack_${Date.now()}.zip`;
+            link.click();
+
+            showToast('Ресурспак готов!');
+        });
+
+        // Загрузка ресурспака
+        document.getElementById('loadPackBtn').addEventListener('click', () => {
+            document.getElementById('packFile').click();
+        });
+
+        document.getElementById('packFile').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            showToast('Загрузка ресурспака...', 'info');
+
+            const zip = new JSZip();
+            const zipContent = await zip.loadAsync(file);
+
+            // Читаем pack.mcmeta
+            const mcmetaFile = zipContent.file('pack.mcmeta');
+            if (mcmetaFile) {
+                const content = await mcmetaFile.async('string');
+                packMcmeta.value = content;
+                try {
+                    const json = JSON.parse(content);
+                    if (json.pack) {
+                        mcVersion.value = json.pack.pack_format || 6;
+                        packDesc.value = json.pack.description || '';
+                    }
+                } catch (e) {}
+            }
+
+            // Загружаем текстуры
+            const textureFiles = zipContent.file(/assets\/minecraft\/textures\/.*\.png$/i);
+            
+            for (let file of textureFiles) {
+                const blob = await file.async('blob');
+                const dataUrl = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(blob);
+                });
+
+                // Извлекаем путь
+                const path = file.name.replace('assets/minecraft/textures/', '').replace('.png', '');
+
+                textures.push({
+                    id: Date.now() + Math.random() + file.name,
+                    name: file.name.split('/').pop(),
+                    file: new File([blob], file.name.split('/').pop()),
+                    dataUrl: dataUrl,
+                    assignedPath: path
+                });
+            }
+
+            renderAll();
+            showToast('Ресурспак загружен!');
+        });
+
+        // Очистка
+        document.getElementById('clearAll').addEventListener('click', () => {
+            textures = [];
+            selectedTextureId = null;
+            renderAll();
+        });
+
+        // Копирование pack.mcmeta
+        document.getElementById('copyMcmeta').addEventListener('click', () => {
+            packMcmeta.select();
+            document.execCommand('copy');
+            showToast('Скопировано!');
+        });
+
+        // Слушатели изменений
+        textureIdInput.addEventListener('input', updatePathPreview);
+        customPathInput.addEventListener('input', updatePathPreview);
+        mcVersion.addEventListener('change', updateMcmeta);
+        packName.addEventListener('input', updateMcmeta);
+        packDesc.addEventListener('input', updateMcmeta);
+
+        // Инициализация
+        renderAll();
+        renderQuickTags();
+
+        // JSZip
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        document.head.appendChild(script);
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            toast.textContent = message;
+            toast.style.borderLeftColor = type === 'error' ? '#f44336' : '#4caf50';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
